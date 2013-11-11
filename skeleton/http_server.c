@@ -28,6 +28,7 @@ int main(int argc,char *argv[])
     int flag, num_seats = 20;
     int connfd = 0;
     struct sockaddr_in serv_addr;
+    pthread_t p1;
 
     char send_buffer[BUFSIZE];
     
@@ -89,7 +90,9 @@ int main(int argc,char *argv[])
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
         
         // single threaded
-        handle_connection(&connfd);
+	int status = pthread_create(&p1, NULL, handle_connection, &connfd);
+	printf("%i",status);
+        //handle_connection(&connfd);
     }
 }
 

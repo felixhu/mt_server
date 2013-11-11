@@ -22,9 +22,9 @@ int get_line(int, char*,int);
 
 int parse_int_arg(char* filename, char* arg);
 
-void handle_connection(int* connfd_ptr)
+void *handle_connection(void* connfd_ptr)
 {
-    int connfd = *(connfd_ptr);
+    int connfd = *((int*)connfd_ptr);
 
     int fd;
     char buf[BUFSIZE+1];
@@ -76,7 +76,7 @@ void handle_connection(int* connfd_ptr)
     if (strncmp(instr, "GET", 3) != 0) {
         writenbytes(connfd, bad_request, strlen(bad_request));
         close(connfd);
-        return;
+        return NULL;
     }
 
     //parse out filename
@@ -180,6 +180,7 @@ void handle_connection(int* connfd_ptr)
         } 
     }
     close(connfd);
+    return NULL;
 }
 
 int get_line(int fd, char *buf, int size)
