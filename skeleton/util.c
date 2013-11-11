@@ -11,7 +11,6 @@
 #include <stdbool.h>
 #include <errno.h>
 
-
 #include "seats.h"
 
 #define BUFSIZE 1024
