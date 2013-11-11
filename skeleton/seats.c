@@ -33,7 +33,7 @@ void view_seat(char* buf, int bufsize,  int seat_id, int customer_id, int custom
     {
         if(curr->id == seat_id)
         {
-            if(curr->state == AVAILABLE || curr->state == PENDING)
+            if(curr->state == AVAILABLE || (curr->state == PENDING && curr->customer_id == customer_id))
             {
                 snprintf(buf, bufsize, "Confirm seat: %d %c ?\n\n",
                         curr->id, seat_state_to_char(curr->state));
