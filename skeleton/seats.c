@@ -33,19 +33,19 @@ void view_seat(char* buf, int bufsize,  int seat_id, int customer_id, int custom
     {
         if(curr->id == seat_id)
         {
+	    pthread_mutex_lock(&curr->lock);
             if(curr->state == AVAILABLE || (curr->state == PENDING && curr->customer_id == customer_id))
             {
                 snprintf(buf, bufsize, "Confirm seat: %d %c ?\n\n",
                         curr->id, seat_state_to_char(curr->state));
                 curr->state = PENDING;
-		pthread_mutex_lock(&curr->lock);
                 curr->customer_id = customer_id;
             }
             else
             {
                 snprintf(buf, bufsize, "Seat unavailable\n\n");
             }
-
+	    pthread_mutex_unlock(&curr->lock);
             return;
         }
         curr = curr->next;
@@ -63,7 +63,6 @@ void confirm_seat(char* buf, int bufsize, int seat_id, int customer_id, int cust
         {
             if(curr->state == PENDING && curr->customer_id == customer_id )
             {
-		pthread_mutex_unlock(&curr->lock);
                 snprintf(buf, bufsize, "Seat confirmed: %d %c\n\n",
                         curr->id, seat_state_to_char(curr->state));
                 curr->state = OCCUPIED;
@@ -97,7 +96,6 @@ void cancel(char* buf, int bufsize, int seat_id, int customer_id, int customer_p
         {
             if(curr->state == PENDING && curr->customer_id == customer_id )
             {
-		pthread_mutex_unlock(&curr->lock);
                 snprintf(buf, bufsize, "Seat request cancelled: %d %c\n\n",
                         curr->id, seat_state_to_char(curr->state));
                 curr->state = AVAILABLE;
