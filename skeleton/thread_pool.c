@@ -4,6 +4,9 @@
 
 #include "thread_pool.h"
 
+#define MAX_THREADS 20
+#define QUEUE_SIZE 20
+
 /**
  *  @struct threadpool_task
  *  @brief the work struct
@@ -43,7 +46,20 @@ static void *thread_do_work(void *threadpool);
  */
 threadpool_t *threadpool_create(int thread_count, int queue_size)
 {
-    return NULL;
+    threadpool_t* pool = malloc(sizeof(threadpool_t));
+    pool->threads = (pthread_t*)malloc(sizeof(pthread_t) * MAX_THREADS);
+    pool->queue = (threadpool_task_t*)malloc(sizeof(threadpool_task_t)* QUEUE_SIZE);
+
+    //Initialize Mutex
+    pthread_mutex_init(&(pool->lock), NULL);
+    pthread_cond_initi(&(pool->notify), NULL);
+
+    for(int i=0; i<MAX_THREADS; i++){
+	pthread_create(&(pool->threads[i]), NULL, threadpool_do_work, (void*)pool);
+	pool->thread_count++;
+    }
+
+    return pool;
 }
 
 
