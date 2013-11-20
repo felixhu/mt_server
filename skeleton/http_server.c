@@ -28,7 +28,6 @@ int main(int argc,char *argv[])
     int flag, num_seats = 20;
     int connfd = 0;
     struct sockaddr_in serv_addr;
-    pthread_t p1;
 
     char send_buffer[BUFSIZE];
     
@@ -60,9 +59,7 @@ int main(int argc,char *argv[])
     setsockopt( listenfd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag) );
 
     // initialize the threadpool
-    // Set the number of threads and size of the queue
-    // threadpool = threadpool_create(0,0);
-
+    threadpool = threadpool_create();
 
     // Load the seats;
     load_seats(num_seats); //TODO read from argv
@@ -89,10 +86,7 @@ int main(int argc,char *argv[])
     {
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
         
-        // single threaded
-	int status = pthread_create(&p1, NULL, handle_connection, &connfd);
-	printf("%i",status);
-        //handle_connection(&connfd);
+        threadpool_add_task(threadpool, (void*)handle_connection, &connfd);
     }
 }
 
