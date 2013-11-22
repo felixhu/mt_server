@@ -5,8 +5,8 @@
 
 #include "thread_pool.h"
 
-#define MAX_THREADS 50
-#define QUEUE_SIZE 50
+#define MAX_THREADS 49
+#define QUEUE_SIZE 3000
 
 /**
  *  @struct threadpool_task
@@ -20,7 +20,7 @@
 
 typedef struct {
     void (*function)(void *);
-    void *argument;
+    int argument;
 } threadpool_task_t;
 
 
@@ -48,15 +48,19 @@ static void *thread_do_work(void *threadpool);
  */
 threadpool_t *threadpool_create()
 {
+    //get space for thread pool, all threads, and the work queue
     threadpool_t* pool = malloc(sizeof(threadpool_t));
     pool->threads = (pthread_t*)malloc(sizeof(pthread_t) * MAX_THREADS);
     pool->queue = (threadpool_task_t*)malloc(sizeof(threadpool_task_t) * QUEUE_SIZE);
+    //initialize condition variable and lock
     pthread_mutex_init(&(pool->lock), NULL);
     pthread_cond_init(&(pool->notify), NULL);
+    //first item in queue will be at index 0
     pool->queueItems = 0;
     pool->headIndex = 0;
     pool->tailIndex = 0;
     int i;
+    //create each thread
     for (i = 0; i < MAX_THREADS; i++)
     {
         pthread_create(&(pool->threads[i]), NULL, thread_do_work, (void*) pool);
@@ -69,7 +73,7 @@ threadpool_t *threadpool_create()
  * Add a task to the threadpool
  *
  */
-int threadpool_add_task(threadpool_t *pool, void (*function)(void *), void *argument)
+int threadpool_add_task(threadpool_t *pool, void (*function)(void *), int argument)
 {
     int err = 0;
     int nextIndex;
@@ -113,7 +117,6 @@ int threadpool_add_task(threadpool_t *pool, void (*function)(void *), void *argu
 int threadpool_destroy(threadpool_t *pool)
 {
     int err = 0;
-
     
     /* Wake up all worker threads */
     err = err | pthread_mutex_lock(&(pool->lock));
@@ -172,7 +175,7 @@ static void *thread_do_work(void *threadpool)
 	pthread_mutex_unlock(&(pool->lock));
 
         /* Start the task */
-        (*(currentTask.function))(currentTask.argument);
+        (*(currentTask.function))(&currentTask.argument);
     }
 
     pthread_exit(NULL);

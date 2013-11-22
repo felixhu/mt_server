@@ -87,8 +87,6 @@ void confirm_seat(char* buf, int bufsize, int seat_id, int customer_id, int cust
 
 void cancel(char* buf, int bufsize, int seat_id, int customer_id, int customer_priority)
 {
-    printf("Cancelling seat %d for user %d\n", seat_id, customer_id);
-
     seat_t* curr = seat_header;
     while(curr != NULL)
     {

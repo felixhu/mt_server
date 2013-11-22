@@ -85,8 +85,10 @@ int main(int argc,char *argv[])
     while(1)
     {
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL);
-        
-        threadpool_add_task(threadpool, (void*)handle_connection, &connfd);
+        if (connfd >= 0)
+        {
+            threadpool_add_task(threadpool, (void*)handle_connection, connfd);
+        }
     }
 }
 

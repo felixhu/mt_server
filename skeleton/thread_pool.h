@@ -20,7 +20,7 @@ threadpool_t *threadpool_create();
  * @param argument Argument to be passed to the function.
  * @return 0 if all goes well, negative values in case of error
  */
-int threadpool_add_task(threadpool_t *pool, void (*routine)(void *), void *arg);
+int threadpool_add_task(threadpool_t *pool, void (*routine)(void *), int arg);
 
 /**
  * @function threadpool_destroy
