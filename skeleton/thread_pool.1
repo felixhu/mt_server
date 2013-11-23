@@ -1,0 +1,69 @@
+.TH thread_pool.c
+.DESCRIPTION
+This threadpool is implemented with a worker queue, a thread-safe queue in which work
+requests are kept and dispatched to available threads as they finish their current work. 
+Each request will be queued in a worker queue, with the information for each request (connection, request string) stored
+in a structure and queued in the worker queue. Condition variables and signals are used with pthreads for communication
+amongst threads.
+
+.SH threadpool_create
+threadpool_create \- Creates the threadpool
+.SH DESCRIPTION
+.B kma_rm psuedocode
+We get space for the threadpool, for all of the threads, and for the worker queue.
+We then initialize the condition variable and lock it.
+We use the first item in the worker queue as in a FIFO structure.
+Lastly, we create each item on the thread.
+     
+
+.SH DESIGN DECISIONS
+We decided to do FIFO since the structure makes sense as it is a worker queue.
+
+
+.SH threadpool_add_task
+threadpool_add_task \- Add a task to the threadpool
+.SH DESCRIPTION
+.B threadpool_add_task psuedocode
+We first initialize the mutex lock. We then add the task to the queue if the 
+number of items in the queue permits us to. 
+If index of tail is equal to the size of the queue, circle it back to index 0.
+Then add the next item tot he tail of the queue, and increment the total count in
+the queue.
+If the queue size is full, then throw the error we initialized earlier.
+Lastly unlock, if necessary.
+     
+
+.SH DESIGN DECISIONS
+Since we opted to go with a worker queue, we add tasks in the order the come in to the 
+end of the list, again using FIFO.
+
+
+ .SH threadpool_destroy
+threadpool_destroy \- Destroy the threadpool, free all memory, destroy treads, etc
+.SH DESCRIPTION
+.B threadpool_destroy psuedocode
+We wake up all the worker threads. We join all of the worker threads. If nothing went wrong,
+we deallocate the pool.
+
+
+.SH DESIGN DECISIONS
+We opted to use an integer as our error variable, since that allowed us to do some boolean
+algebra with the mutex lock, cond, and unlock.
+
+.SH threadpool_do_work
+threadpool_do_work \- Work loop for threads. Should be passed into the pthread_create() method.
+.SH DESCRIPTION
+.B threadpool_do_work psuedocode
+The lock is taken to wait on the conditional variable, then wait on the condition variable, 
+as you check for spurius wakeups using cond_wait. When returning pthread_cond_wait() notify and lock.
+Grab the taks from the beginning of the queue, and increment where the head is. If the index of the head
+is the same as the size of the queue, go back to 0. Then unlock the mutx for others, and start the function
+or task that it is intended to do.
+
+
+.SH DESIGN DECISIONS
+Similar to the others, we opted to execute a FIFO structure using the worker queue. We circled back to index
+0 when the queue has reached is max capacity.
+
+.SH AUTHOR
+Irsal Jasebel Alsanea, Patrick Hayes, Felix Hu

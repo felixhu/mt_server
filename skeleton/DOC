@@ -1,0 +1,16 @@
+Evaluation Report for Project 3
+Group: fhh564+ija144+pjh693
+
+Evaluation report (DOC ) including your comparative analysis, as well as a description of any important design decisions you made while implementing the diﬀerent allocation methods compared. Please make
+sure that these les are included in the handin.
+
+
+Threadpool:
+We decided to do FIFO since the structure makes sense as it is a worker queue. Since we opted to go with a worker queue, we add tasks in the order the come in to the end of the list, again using FIFO. We opted to use an integer as our error variable, since that allowed us to do some boolean
+algebra with the mutex lock, cond, and unlock. We circled back to index 0 when the queue has reached is max capacity.
+All tests passed.
+Data from tests.
+
+
+
+Extra Credit:
